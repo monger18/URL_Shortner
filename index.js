@@ -12,9 +12,7 @@ const { restrictToLoggedinUseronly } = require('./middleware/auth')
 const app = express()
 
 const PORT = 8001
-connectToMongoDB(
-  'mongodb+srv://rahulraj18sep200051:2CczBEVHkTryUef4@cluster0.vzy2wgr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
-)
+connectToMongoDB('mongodburl')
   .then(() => console.log('Mongodb connect'))
   .catch((err) => {
     console.log(err)
