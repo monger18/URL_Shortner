@@ -1,7 +1,13 @@
 const express = require('express')
-const urlRoute = require('./routes/url')
+const path = require('path')
 const { connectToMongoDB } = require('./connect')
 const URL = require('./models/url')
+const cookieParser = require('cookie-parser')
+
+const staticRoute = require('./routes/staticroutes')
+const urlRoute = require('./routes/url')
+const userRoute = require('./routes/user')
+const { restrictToLoggedinUseronly } = require('./middleware/auth')
 
 const app = express()
 
@@ -14,10 +20,18 @@ connectToMongoDB(
     console.log(err)
   })
 
-app.use(express.json())
-app.use('/url', urlRoute)
+app.set('view engine', 'ejs')
+app.set('views', path.resolve('./views'))
 
-app.get('/:shortId', async (req, res) => {
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser())
+
+app.use('/url', restrictToLoggedinUseronly, urlRoute)
+app.use('/', staticRoute)
+app.use('/user', userRoute)
+
+app.get('/url/:shortId', async (req, res) => {
   const shortId = req.params.shortId
   const entry = await URL.findOneAndUpdate(
     {
