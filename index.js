@@ -7,12 +7,14 @@ const cookieParser = require('cookie-parser')
 const staticRoute = require('./routes/staticroutes')
 const urlRoute = require('./routes/url')
 const userRoute = require('./routes/user')
-const { restrictToLoggedinUseronly } = require('./middleware/auth')
+const { restrictToLoggedinUseronly, checkAuth } = require('./middleware/auth')
 
 const app = express()
 
 const PORT = 8001
-connectToMongoDB('mongodburl')
+connectToMongoDB(
+  'mongodb+srv://rahulraj18sep200051:2CczBEVHkTryUef4@cluster0.vzy2wgr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+)
   .then(() => console.log('Mongodb connect'))
   .catch((err) => {
     console.log(err)
@@ -26,7 +28,7 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 
 app.use('/url', restrictToLoggedinUseronly, urlRoute)
-app.use('/', staticRoute)
+app.use('/', checkAuth, staticRoute)
 app.use('/user', userRoute)
 
 app.get('/url/:shortId', async (req, res) => {
